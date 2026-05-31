@@ -9,6 +9,7 @@
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
+    "baseUrl": ".",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
@@ -19,7 +20,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@repo/*": ["../../packages/*/src"],
+      "@repo/domain": ["../../packages/domain/src/index.ts"],
+      "@repo/application": ["../../packages/application/src/index.ts"]
     }
   },
   "include": [
@@ -30,5 +34,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "extends": "../../tsconfig.base.json"
 }

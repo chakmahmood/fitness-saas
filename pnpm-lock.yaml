@@ -52,6 +52,14 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  packages/application:
+    dependencies:
+      '@repo/domain':
+        specifier: workspace:*
+        version: link:../domain
+
+  packages/domain: {}
+
 packages:
 
   '@alloc/quick-lru@5.2.0':
