@@ -9,7 +9,8 @@
     "paths": {
       "@repo/*": ["packages/*/src"],
       "@repo/domain": ["packages/domain/src/index.ts"],
-      "@repo/application": ["packages/application/src/index.ts"]
+      "@repo/application": ["packages/application/src/index.ts"],
+      "@repo/infrastructure": ["packages/infrastructure/src/index.ts"]
     }
   }
 }
