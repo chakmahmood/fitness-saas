@@ -16,17 +16,28 @@ import { AppLayout } from "../components/layout/app-layout";
 
 import { StatCard } from "../components/dashboard/stat-card";
 
+import { ProteinChart } from "../components/charts/protein-chart";
+
+import { Card } from "../components/ui/card";
+
+import { Button } from "../components/ui/button";
+
+import { Input } from "../components/ui/input";
+
 const DAILY_GOAL = 180;
 
 const STORAGE_KEY = "protein-tracker-foods";
 
 export default function Page() {
+  const [hydrated, setHydrated] = useState(false);
+
   const [foods, setFoods] = useState<FoodEntry[]>([]);
 
   const [foodName, setFoodName] = useState("");
 
   const [protein, setProtein] = useState("");
 
+  // Hydrate from localStorage
   useEffect(() => {
     const stored = loadFromStorage<FoodEntry[]>(STORAGE_KEY, []);
 
@@ -36,11 +47,16 @@ export default function Page() {
     }));
 
     setFoods(parsed);
+
+    setHydrated(true);
   }, []);
 
+  // Persist data
   useEffect(() => {
+    if (!hydrated) return;
+
     saveToStorage(STORAGE_KEY, foods);
-  }, [foods]);
+  }, [foods, hydrated]);
 
   const totalProtein = calculateProtein(foods);
 
@@ -64,22 +80,30 @@ export default function Page() {
     setProtein("");
   }
 
+  // Prevent hydration mismatch
+  if (!hydrated) {
+    return null;
+  }
+
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto">
+        {/* Header */}
         <div>
           <h1 className="text-5xl font-bold text-white">🥩 Protein Tracker</h1>
 
           <p className="text-zinc-400 mt-3">Track your daily protein intake</p>
         </div>
 
+        {/* Stats */}
         <div className="grid md:grid-cols-2 gap-6 mt-10">
           <StatCard title="Total Protein" value={`${totalProtein}g`} />
 
           <StatCard title="Daily Goal" value={`${DAILY_GOAL}g`} />
         </div>
 
-        <div className="mt-8 bg-zinc-900 rounded-3xl p-6">
+        {/* Progress */}
+        <Card className="mt-8">
           <div className="flex justify-between mb-3 text-white">
             <span>Goal Progress</span>
 
@@ -100,36 +124,47 @@ export default function Page() {
               ? "Daily goal achieved 🎉"
               : `${goal.remaining}g remaining`}
           </div>
-        </div>
+        </Card>
 
-        <div className="mt-10 bg-zinc-900 rounded-3xl p-6">
+        {/* Add Food */}
+        <Card className="mt-10">
           <h2 className="text-2xl font-bold text-white">Add Food</h2>
 
           <div className="flex flex-col md:flex-row gap-4 mt-6">
-            <input
+            <Input
               placeholder="Chicken breast..."
               value={foodName}
               onChange={(e) => setFoodName(e.target.value)}
-              className="flex-1 bg-zinc-800 rounded-xl px-4 py-3 outline-none text-white"
             />
 
-            <input
+            <Input
               type="number"
               placeholder="Protein"
               value={protein}
               onChange={(e) => setProtein(e.target.value)}
-              className="w-full md:w-32 bg-zinc-800 rounded-xl px-4 py-3 outline-none text-white"
+              className="md:w-32"
             />
 
-            <button
-              onClick={handleAddFood}
-              className="bg-white text-black px-6 rounded-xl font-semibold hover:opacity-90 transition py-3"
-            >
-              Add
-            </button>
+            <Button onClick={handleAddFood}>Add</Button>
           </div>
-        </div>
+        </Card>
 
+        {/* Analytics */}
+        <Card className="mt-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Analytics</h2>
+
+              <p className="text-zinc-400 mt-1">Protein intake trends</p>
+            </div>
+          </div>
+
+          <div className="mt-8">
+            <ProteinChart foods={foods} />
+          </div>
+        </Card>
+
+        {/* Entries */}
         <div className="mt-10">
           <h2 className="text-2xl font-bold text-white">Food Entries</h2>
 
@@ -139,10 +174,7 @@ export default function Page() {
             )}
 
             {foods.map((food) => (
-              <div
-                key={food.id}
-                className="bg-zinc-900 rounded-2xl p-5 flex justify-between items-center"
-              >
+              <Card key={food.id} className="flex justify-between items-center">
                 <div>
                   <div className="font-semibold text-lg text-white">
                     {food.name}
@@ -156,7 +188,7 @@ export default function Page() {
                 <div className="text-2xl font-bold text-white">
                   {food.protein}g
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
